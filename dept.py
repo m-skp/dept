@@ -60,9 +60,9 @@ def write_file(
         if os.path.basename(file_path).endswith('json') and auto_json==True:
             json.dump(content, f, ensure_ascii=False, indent=2)
         else:
-            f.write()
+            f.write(content)
 
-    return content
+    return True
 
 
 #############################################################################
@@ -78,7 +78,7 @@ def print_dict(
     - prints out dictionary with indented keys
     """
 
-    print(json.dumps(d, indent=indent, sort_keys=sort_keys))
+    print(json.dumps(d, indent=indent, sort_keys=sort_keys, default=str))
 
 
 #############################################################################
