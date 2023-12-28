@@ -1,0 +1,16 @@
+name: dept
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  # base
+  - python=3.10
+  - pandas=2.1.4
+  - numpy
+  # aws
+  - boto3
+  # jupyter
+  - ipykernel
+#variables:
+#  VAR1: valueA
+#  VAR2: valueB
