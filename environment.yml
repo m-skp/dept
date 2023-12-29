@@ -9,6 +9,7 @@ dependencies:
   - numpy
   # aws
   - boto3
+  - paramiko
   # jupyter
   - ipykernel
 #variables:
