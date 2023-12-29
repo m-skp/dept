@@ -1,5 +1,6 @@
 {
     "aws_access_key_id": null,
     "aws_secret_access_key": null,
-    "bucket_name": null
+    "bucket_name": null,
+    "region_name": null
 }
