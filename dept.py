@@ -6,6 +6,7 @@ import pandas as pd
 from datetime import datetime, timezone
 import uuid
 import hashlib
+import boto3
 
 # print current location
 print(f"current location: {os.getcwd()}")
@@ -50,7 +51,6 @@ def decorator_timer(func):
 def norm_path(
     str_path: str=None
     ) -> str:
-    
     """
     normalizes file paths to \\ usage
 
@@ -169,21 +169,198 @@ def scan_files(
         list of file path strings
     """
 
-    # define output list
+    # set default values
+    file_types = file_types or ['']
     file_list = []
 
     # scan repository
     for root, dirs, files in os.walk(repository_address):
         for name in files:
-            if os.path.splitext(name)[1] in file_types or file_types is None:
+            if name.endswith(tuple(file_types)) and re.search(regex_pattern, name):
                 file_path = os.path.join(root, name)
                 file_list.append(norm_path(file_path))
 
-    if regex_pattern is not None: 
-        file_list = [f for f in file_list if re.search(regex_pattern, f)]
-
     return file_list
 
+
+#############################################################################
+# S3 
+#############################################################################
+
+@decorator_timer
+def s3_get_file(
+    s3_connection_config: dict=None,
+    s3_bucket: str=None,
+    s3_file_path: str=None,
+    local_destination_path: str=None
+    ) -> bool:
+    """
+    collects file from S3
+
+    Parameters
+    ----------
+    s3_connection_config : dict
+        S3 connection configuration, by default None
+    s3_bucket : str, optional
+        S3 bucket name, if not provided access_key is used, by default None
+    s3_file_path : str, optional
+        file location within the S3 bucket, by default None
+    destination_file_path : str
+        local destination path for the collected file, by default None
+
+    Returns
+    -------
+    bool
+        True 
+    """
+
+    try:
+        # get bucket name or use access key if bucket name is not provided
+        s3_bucket = s3_bucket or s3_connection_config.get('access_key')
+
+        # create session
+        session = boto3.session.Session()
+        s3 = session.client(
+            service_name = 's3',
+            endpoint_url = s3_connection_config.get('endpoint_url'),
+            aws_access_key_id = s3_connection_config.get('access_key'),
+            aws_secret_access_key = s3_connection_config.get('secret'),
+        )
+
+        # download data
+        s3.download_file(s3_bucket, s3_file_path, local_destination_path)
+
+        return True
+    
+    except Exception as e:
+        print(f"failed to download from S3: {s3_bucket}/{s3_file_path} to {local_destination_path}")
+        print(e)
+        raise ValueError
+
+
+#############################################################################
+    
+@decorator_timer
+def s3_upload_file(
+    s3_connection_config: dict=None,
+    s3_bucket: str=None,
+    source_file_path: str=None,
+    s3_destination_path: str=None
+    ) -> bool:
+    """
+    uploads file to S3
+
+    Parameters
+    ----------
+    s3_connection_config : dict
+        S3 connection configuration, by default None
+    s3_bucket : str, optional
+        S3 bucket name, if not provided access_key is used, by default None
+    source_file_path : str
+        local file path to the file for upload, by default None
+    s3_destination_path : str
+        S3 destination for the uploaded file, by default None
+
+    Returns
+    -------
+    bool
+        True 
+    """
+
+    try:
+        # get bucket name or use access key if bucket name is not provided
+        s3_bucket = s3_bucket or s3_connection_config.get('access_key')
+
+        # create session
+        session = boto3.session.Session()
+        s3 = session.client(
+            service_name = 's3',
+            endpoint_url = s3_connection_config.get('endpoint_url'),
+            aws_access_key_id = s3_connection_config.get('access_key'),
+            aws_secret_access_key = s3_connection_config.get('secret'),
+        )
+
+        # upload object
+        with open(source_file_path, "rb") as f:
+            s3.upload_fileobj(f, s3_bucket, s3_destination_path)
+
+        return True
+    
+    except Exception as e:
+        print(f"failed to upload {source_file_path} to S3: {s3_bucket}/{s3_destination_path}")
+        print(e)
+        raise ValueError
+
+
+#############################################################################
+    
+@decorator_timer
+def scan_s3_files(
+    s3_connection_config: dict=None,
+    s3_bucket: str=None,
+    s3_path: str=None,
+    file_types: list=None,
+    regex_pattern: str=None
+    ) -> bool:
+    """
+    scans S3 repository for files of specified file_types following a regex_pattern
+
+    Parameters
+    ----------
+    s3_connection_config : dict
+        S3 connection configuration, by default None
+    s3_bucket : str, optional
+        S3 bucket name, if not provided access_key is used, by default None
+    s3_path : str, optional
+        S3 path to be scanned, by default None
+    file_types : list, optional
+        list of file types to pick, by default None
+    regex_pattern : str
+        file name regex pattern to use, by default None
+
+    Returns
+    -------
+    bool
+        True 
+    """
+
+    # set default values
+    s3_path = s3_path or ''
+    regex_pattern = regex_pattern or '.*'
+    file_types = file_types or ['']
+    s3_object_list = []
+
+    try:
+        # get bucket name or use access key if bucket name is not provided
+        s3_bucket = s3_bucket or s3_connection_config.get('access_key')
+
+        # create session
+        session = boto3.session.Session()
+        s3 = session.client(
+            service_name = 's3',
+            endpoint_url = s3_connection_config.get('endpoint_url'),
+            aws_access_key_id = s3_connection_config.get('access_key'),
+            aws_secret_access_key = s3_connection_config.get('secret'),
+        )
+
+        # get list of objects
+        paginator = s3.get_paginator('list_objects_v2')
+        pages = paginator.paginate(Bucket=s3_bucket, Prefix=s3_path)
+
+    except Exception as e:
+        print(f"unable to read S3 repository {s3_bucket}/{s3_path}")
+        print(e)
+        raise ValueError
+
+    # iterate over pages and objects
+    for page in pages:
+        for obj in page['Contents']:
+
+            # check if object ends with any of the suffixes
+            if obj['Key'].endswith(tuple(file_types)) and re.search(regex_pattern, obj['Key']):
+                s3_object_list.append(obj)
+
+    return s3_object_list
 
 
 #############################################################################
@@ -334,7 +511,6 @@ def json_drop_null_value_keys(
 
         
 
-
 #############################################################################
 
 def drop_none_value_keys(
@@ -405,4 +581,9 @@ def consolidate_configs(
 
 if __name__ == "__main__":
 
+    # print location
     print(os.getcwd())
+
+    run_id = generate_id()
+    print(f"test run: {run_id}")
+
