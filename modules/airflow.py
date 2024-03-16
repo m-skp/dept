@@ -16,7 +16,9 @@ if DISABLE_WARNINGS:
 
 # DAG ran termination statuses
 AIRFLOW_DAG_RUN_TERMINATION_STATUSES = [
-    'success', 'failed', 'unreachable'
+    'success', 
+    'failed', 
+    'unreachable'
 ]
     
 
@@ -49,7 +51,7 @@ def airflow_trigger_dag(
     """    
 
     # construct API url
-    url = f"{airflow_connection_config['url']}/api/v1/dags/{airflow_dag_name}/dagRuns"
+    url = f"{airflow_connection_config['host']}/api/v1/dags/{airflow_dag_name}/dagRuns"
 
     # define Airflow API post json
     api_json = {'conf': airflow_dag_run_config}
@@ -61,7 +63,7 @@ def airflow_trigger_dag(
         verify=False,
         auth=HTTPBasicAuth(
             airflow_connection_config['user_name'],
-            airflow_connection_config['pwd']
+            airflow_connection_config['password']
         )
     )
 
@@ -98,7 +100,7 @@ def airflow_check_dag_status(
     """
 
     # construct API url
-    url = f"{airflow_connection_config['url']}/api/v1/dags/{airflow_dag_name}/dagRuns/{airflow_dag_run_id}"
+    url = f"{airflow_connection_config['host']}/api/v1/dags/{airflow_dag_name}/dagRuns/{airflow_dag_run_id}"
 
     # submit to Airflow API
     r = requests.get(
@@ -106,7 +108,7 @@ def airflow_check_dag_status(
         verify=False,
         auth=HTTPBasicAuth(
             airflow_connection_config['user_name'],
-            airflow_connection_config['pwd']
+            airflow_connection_config['password']
         )
     )
 
