@@ -3,5 +3,6 @@
     "access_key": null,
     "secret": null,
     "bucket_name": null,
-    "region_name": null
+    "region_name": null,
+    "profile_name": null
 }
