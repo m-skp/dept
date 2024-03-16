@@ -499,13 +499,13 @@ def json_drop_null_value_keys(
     """
 
     # prepare null value regex
-    null_values_regex = '(null\s*,*)' + ''.join([f'|({r}\s*,*)' for r in map(lambda x: x.replace('"', '\\"'), null_values)])
+    null_values_regex = '(null\s*,*)' + ''.join([f'|({r}\s*,*)' for r in null_values])
 
     # remove null values
     cleaned_json_string = re.sub('(\"([^\"]*)\"\s*:\s*(' + null_values_regex + '))', '', json_string, flags=re.IGNORECASE)
     
     # remove last comma if present to get correct JSON structure
-    out_json_string = re.sub('(,*\s*\}*\s$', '}', cleaned_json_string) 
+    out_json_string = re.sub(',*\s*\}*\s$', '}', cleaned_json_string) 
 
     return out_json_string
 
