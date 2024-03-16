@@ -6,12 +6,15 @@ dependencies:
   # base
   - python=3.10
   - pandas=2.1.4
-  - numpy
-  # aws
-  - boto3
-  - paramiko
+  - numpy=1.26.2
+
+  # APIs
+  - requests=2.31.0
+
   # jupyter
-  - ipykernel
-#variables:
-#  VAR1: valueA
-#  VAR2: valueB
+  - ipykernel=6.28.0
+
+  # aws
+  - boto3=1.34.8
+
+

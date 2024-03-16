@@ -1,6 +1,8 @@
 {
-    "aws_access_key_id": null,
-    "aws_secret_access_key": null,
+    "endpoint_url": null,
+    "access_key": null,
+    "secret": null,
     "bucket_name": null,
-    "region_name": null
+    "region_name": null,
+    "profile_name": null
 }
