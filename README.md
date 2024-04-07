@@ -2,9 +2,10 @@
 **Data engineering python toolkit (dept)** is a library of custom functions, function wrappers and scripts for common data engineering operations. Its intention is to remove boilerplate code from scripts to improve their readability, streamline common engineering tasks and preserve a collection of template scripts and blueprints.
     
 **WHY?**  
-Data engineering niche is very diverse and quickly expanding. Business never sleeps and adds new requirements every day. In such hectic environment, saving time and mental capacity and can make a difference, especially in the long run. Some fundamental enginneering tasks are recurring and generate a ton of boilerplate code which complicates code readability and understanding of the scripted processes. Sharing code with other teams or team members requires clear and accessible documentation, code walkthoughs, lengthy exlanations or knowledge transfer sessions to be effective. Developers use different coding styles and approaches to achieve the same result. Some codes are pleasure to read, some just drain our brainpower.  
-  
-**dept** is attempting to create an abstraction layer over fundamental engineering operations and at the same time allow the code itself to represent a readable description of the operation/process. clear and undrestandable code helps save our mental capacity and focus on what matters.  
+Business never sleeps and adds new requirements every day. In such environment, saving time and mental capacity and preventing cognitive overload can make a difference, especially in the long run. Especially in business-facing data teams, fundamental enginneering tasks are recurring and generate a ton of boilerplate code which complicates code readability and understanding of the scripted processes.  
+    
+**dept** is attempting to create an abstraction layer over fundamental engineering operations and at the same time allow the code itself to represent a readable description of the operation/process. clear and undrestandable code can be easily reused and shared with other engineers without lengthy code walkthoughs and exlanations. 
+
 
 ## CONTENTS  
 [Requirements](#requirements)  
@@ -30,4 +31,10 @@ Data engineering niche is very diverse and quickly expanding. Business never sle
   `python -m ipykernel install --user --name dept`
 
 ## Connectors
-...
+- AWS
+- Airflow
+- PostgreSQL
+
+\- to set up a connection, copy the .JSON connection config file template from [./configs/templates/](./configs/templates/) to [./configs/](./configs/) folder and populate the connection details  
+\- **NOTE**: [./configs/](./configs/) folder is set up in `.gitingore` to prevent credentials to be commited and pushed outside the local repository
+
