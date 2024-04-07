@@ -1,0 +1,11 @@
+{
+
+    "type": "postgres",
+    "user_name": null,
+    "password": null,
+    "host": null,
+    "port": null,
+    "database_name": null,
+    "ownership_assignment": null
+
+}
